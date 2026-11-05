@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+# Copy to azure.yaml and replace ${PARTICIPANT_ALIAS} with your alias.
+name: foundry-tracing-bug-bash
+requiredVersions:
+  azd: ">=1.36.0"
+  extensions:
+    azure.ai.agents: ">=1.0.0-beta.21"
+    azure.ai.projects: ">=1.0.0-beta.14"
+
+services:
+  ai-project:
+    host: azure.ai.project
+    endpoint: "${FOUNDRY_PROJECT_ENDPOINT}"
+
+  prompt-model-apim:
+    host: azure.ai.agent
+    project: .
+    uses: [ai-project]
+    kind: prompt
+    name: "${PARTICIPANT_ALIAS}-prompt-model-apim"
+    description: Model tracing through APIM.
+    $ref: ./prompts/prompt-model-apim.json
+
+  prompt-model-dedicated:
+    host: azure.ai.agent
+    project: .
+    uses: [ai-project]
+    kind: prompt
+    name: "${PARTICIPANT_ALIAS}-prompt-model-dedicated"
+    description: Model tracing through dedicated AI Gateway.
+    $ref: ./prompts/prompt-model-dedicated.json
+
+  prompt-tool-apim:
+    host: azure.ai.agent
+    project: .
+    uses: [ai-project]
+    kind: prompt
+    name: "${PARTICIPANT_ALIAS}-prompt-tool-apim"
+    description: Tool tracing through APIM.
+    $ref: ./prompts/prompt-tool-apim.json
+
+  prompt-tool-dedicated:
+    host: azure.ai.agent
+    project: .
+    uses: [ai-project]
+    kind: prompt
+    name: "${PARTICIPANT_ALIAS}-prompt-tool-dedicated"
+    description: Tool tracing through dedicated AI Gateway.
+    $ref: ./prompts/prompt-tool-dedicated.json
+
+  hosted-model-apim:
+    host: azure.ai.agent
+    project: src
+    language: python
+    uses: [ai-project]
+    kind: hosted
+    name: "${PARTICIPANT_ALIAS}-hosted-model-apim"
+    description: Hosted model tracing through APIM.
+    codeConfiguration:
+      runtime: python_3_13
+      entryPoint: model.py
+      dependencyResolution: remote_build
+    protocols:
+      - protocol: responses
+        version: 2.0.0
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: "${FOUNDRY_PROJECT_ENDPOINT}"
+      FOUNDRY_MODEL: "${APIM_MODEL}"
+    container:
+      resources:
+        cpu: "0.5"
+        memory: 1Gi
+
+  hosted-model-dedicated:
+    host: azure.ai.agent
+    project: src
+    language: python
+    uses: [ai-project]
+    kind: hosted
+    name: "${PARTICIPANT_ALIAS}-hosted-model-dedicated"
+    description: Hosted model tracing through dedicated AI Gateway.
+    codeConfiguration:
+      runtime: python_3_13
+      entryPoint: model.py
+      dependencyResolution: remote_build
+    protocols:
+      - protocol: responses
+        version: 2.0.0
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: "${FOUNDRY_PROJECT_ENDPOINT}"
+      FOUNDRY_MODEL: "${DEDICATED_MODEL}"
+    container:
+      resources:
+        cpu: "0.5"
+        memory: 1Gi
+
+  hosted-tool-apim:
+    host: azure.ai.agent
+    project: src
+    language: python
+    uses: [ai-project]
+    kind: hosted
+    name: "${PARTICIPANT_ALIAS}-hosted-tool-apim"
+    description: Hosted tool tracing through APIM.
+    codeConfiguration:
+      runtime: python_3_13
+      entryPoint: tool.py
+      dependencyResolution: remote_build
+    protocols:
+      - protocol: responses
+        version: 2.0.0
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: "${FOUNDRY_PROJECT_ENDPOINT}"
+      FOUNDRY_MODEL: "${APIM_MODEL}"
+      MCP_SERVER_URL: "${APIM_TOOL_URL}"
+      MCP_PROJECT_CONNECTION_ID: "${APIM_TOOL_CONNECTION_ID}"
+      MCP_TOOL_NAME: "${APIM_TOOL_NAME}"
+    container:
+      resources:
+        cpu: "0.5"
+        memory: 1Gi
+
+  hosted-tool-dedicated:
+    host: azure.ai.agent
+    project: src
+    language: python
+    uses: [ai-project]
+    kind: hosted
+    name: "${PARTICIPANT_ALIAS}-hosted-tool-dedicated"
+    description: Hosted tool tracing through dedicated AI Gateway.
+    codeConfiguration:
+      runtime: python_3_13
+      entryPoint: tool.py
+      dependencyResolution: remote_build
+    protocols:
+      - protocol: responses
+        version: 2.0.0
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: "${FOUNDRY_PROJECT_ENDPOINT}"
+      FOUNDRY_MODEL: "${DEDICATED_MODEL}"
+      MCP_SERVER_URL: "${DEDICATED_TOOL_URL}"
+      MCP_PROJECT_CONNECTION_ID: "${DEDICATED_TOOL_CONNECTION_ID}"
+      MCP_TOOL_NAME: "${DEDICATED_TOOL_NAME}"
+    container:
+      resources:
+        cpu: "0.5"
+        memory: 1Gi
+
+infra:
+  provider: microsoft.foundry

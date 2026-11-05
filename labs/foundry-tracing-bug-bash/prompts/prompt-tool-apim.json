@@ -1,0 +1,15 @@
+{
+  "kind": "prompt",
+  "model": "${APIM_MODEL}",
+  "instructions": "For documentation questions, use the documentation search tool once before answering. Return one relevant documentation URL and keep answers brief.",
+  "tools": [
+    {
+      "type": "mcp",
+      "server_label": "gateway_docs",
+      "server_url": "${APIM_TOOL_URL}",
+      "project_connection_id": "${APIM_TOOL_CONNECTION_ID}",
+      "allowed_tools": ["${APIM_TOOL_NAME}"],
+      "require_approval": "never"
+    }
+  ]
+}

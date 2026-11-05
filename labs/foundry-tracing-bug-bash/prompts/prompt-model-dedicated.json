@@ -1,0 +1,6 @@
+{
+  "kind": "prompt",
+  "model": "${DEDICATED_MODEL}",
+  "instructions": "You are a tracing test assistant. Keep answers brief.",
+  "tools": []
+}
